@@ -1,4 +1,3 @@
-
 'use strict';
 
 const express = require('express');
@@ -24,46 +23,18 @@ router.get('/:id', (req, res, next) => {
 })
 
 router.post('/', (req, res, next) => {
-  console.log(req.body);
   knex('classifieds')
-    .insert([{
-      title: req.body.title,
-      description: req.body.description,
-      price: req.body.price,
-      item_image: req.body.item_image
-    }], '*')
-      .then(post => {
-        let newPost = {
-          id: post[0].id,
-          title: post[0].title,
-          description: post[0].description,
-          price: post[0].price,
-          item_image: post[0].item_image
-        }
-        res.json(newPost)
-      })
+    .insert([ req.body ])
+      .returning(['id', 'title', 'description', 'price', 'item_image'])
+      .then(post => res.json(post[0]))
 })
 
 router.patch('/:id', (req, res, next) => {
   knex('classifieds')
     .where('id', req.params.id)
-    .update({
-      title: req.body.title,
-      description: req.body.description,
-      price: req.body.price,
-      item_image: req.body.item_image
-    })
-    .returning('*')
-    .then(updated => {
-      let updatedPost = {
-        id: updated[0].id,
-        title: updated[0].title,
-        description: updated[0].description,
-        price: updated[0].price,
-        item_image: updated[0].item_image
-      }
-      res.json(updatedPost)
-    })
+    .update(req.body)
+    .returning(['id', 'title', 'description', 'price', 'item_image'])
+    .then(updated => res.json(updated[0]))
 })
 
 router.delete('/:id', (req, res, next) => {
@@ -71,17 +42,8 @@ router.delete('/:id', (req, res, next) => {
     .where('id', req.params.id)
     .first()
     .del()
-    .returning('*')
-    .then(del => {
-      let deletedPost = {
-        id: del[0].id,
-        title: del[0].title,
-        description: del[0].description,
-        price: del[0].price,
-        item_image: del[0].item_image
-      }
-      res.json(deletedPost)
-    })
+    .returning(['id', 'title', 'description', 'price', 'item_image'])
+    .then(del => res.json(del[0]))
 })
 
 module.exports = router;
